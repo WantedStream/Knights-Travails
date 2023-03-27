@@ -1,3 +1,6 @@
+
+require_relative './graph'
+
 class ChessBoard
 
     def initialize()
@@ -55,9 +58,9 @@ class Knight
       return false
    end 
   
+   def PutAllMoveToGraph()
+      graph = DirectedGraphNode.new()
+       graph.add()
+   end 
      
 end
-cs = ChessBoard.new()
-knight=Knight.new(0,0)
-cs.SetPosition(knight,0,0)
-
