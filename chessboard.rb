@@ -29,6 +29,14 @@ class ChessBoard
      end
 end
 
+class Knight
+
+    def initialize()
+        @chessboard = Array.new(8) { Array.new(8)}
+     end
+  
+     
+end
 cs = ChessBoard.new()
 p cs.GetPiece(0,0)
 cs.SetPosition("knight",0,0)
