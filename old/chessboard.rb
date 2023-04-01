@@ -62,52 +62,87 @@ class Knight
       @col=col
    end
 
-   def CanMove?(row,col)
-      if(row==@row+2)
-         return true if(col==@col+1||col==@col-1)      
-      elsif(row==@row+1)
-         return true if(col==@col+2||col==@col-2)
-      elsif(row==@row-1)
-         return true if(col==@col+2||col==@col-2)
-      elsif(row==@row-2)
-         return true if(col==@col+1||col==@col-1)
+   def CanMove?(row,col,currentcol,currentrow)
+      if(row==currentrow+2)
+         return true if(col==currentcol+1||col==currentcol-1)      
+      elsif(row==currentrow+1)
+         return true if(col==currentcol+2||col==currentcol-2)
+      elsif(row==currentrow-1)
+         return true if(col==currentcol+2||col==currentcol-2)
+      elsif(row==currentrow-2)
+         return true if(col==currentcol+1||col==currentcol-1)
       end
       return false
    end 
-  
-   def PutAllMoveToGraph(graph,chessboard = ChessBoard.new  )
-      return nil if(graph==nil)
+
+   def PutAllMoveToGraph2(node, chessboard = ChessBoard.new)
+         return nil if node.nil? # nothing to do if there is no node or root to begin the search
+         queue = Queue.new
+         queue.enq(node)
+         result = nil
+         while !queue.empty?
+           n = queue.deq
 
 
-      p graph.GetValue
+           moves = self.GetMoves
+           moves.each do |movevar|
+            nrow=movevar[0]
+            ncol=movevar[1]
+            if CanMove?(nrow, ncol) && !chessboard.IsOutOfBounds(nrow, ncol) && chessboard.GetPiece(nrow, ncol) == nil
+               chessboard.SetPosition(self, nrow, ncol)
+              queue.enq(n)
+            end
+           end
 
-      graph.SetValue([@row,@col]) 
+
+         end
+       
+         node # returns node found in BST else default value nil
+       
+    end
+   def PutAllMoveToGraph(graph, chessboard = ChessBoard.new)
+      return nil if (graph == nil)
+    
+
+     # chessboard.printboard
+     # x=gets
+      graph.SetValue([@row, @col])
       moves = self.GetMoves
       moves.each do |movevar|
-          nrow=movevar[0]
-          ncol=movevar[1]
-          
-      if CanMove?(nrow,ncol)&&!chessboard.IsOutOfBounds(nrow,ncol)&&chessboard.GetPiece(nrow,ncol)==nil
-         chessboard.SetPosition(self,nrow,ncol)
-         newgraph=DirectedGraphNode.new([nrow,ncol])
-         newgraph=PutAllMoveToGraph(newgraph,chessboard)
-         graph.AddNext(newgraph)
-        chessboard.RemovePosition(nrow,ncol)
-        @row=graph.GetValue[0]
-        @col=graph.GetValue[1]
+        nrow = movevar[0]
+        ncol = movevar[1]
+        newgraph=nil
+
+    
+
+        
 
 
+        if CanMove?(nrow, ncol,graph.GetValue[0],graph.GetValue[1]) && !chessboard.IsOutOfBounds(nrow, ncol) && chessboard.GetPiece(nrow, ncol) == nil 
+          chessboard.SetPosition(self, nrow, ncol)
+          newgraph = DirectedGraphNode.new([nrow, ncol])
+          newgraph = self.PutAllMoveToGraph(newgraph, chessboard)
+          graph.AddNext(newgraph)
+         chessboard.RemovePosition(nrow, ncol)
+            
+        end
 
+       
       end
+    #  chessboard.printboard
+     # x=gets
 
-
-      end
       
-         return graph
-     #printGraph(graph)
-   
-   end 
-     
+
+      #chessboard.printboard
+     # chessboard.printboard
+
+      return graph
+
+
+    end
+
+
    def GetMoves(row=@row,col=@col)
       return[[row+2,col+1],[row+2,col-1],[row+1,col+2],[row+1,col-2],[row-1,col+2],[row-1,col-2],[row-2,col+1],[row-2,col-1]]
 
@@ -115,44 +150,43 @@ class Knight
 end
 
 def knight_moves(pos1,pos2)
-   knig=Knight.new(pos1[0],pos1[2])
+   knig=Knight.new(pos1[0],pos1[1])
    chessboard = ChessBoard.new()
-   chessboard.SetPosition(knig,0,0)
-    graph=knig.PutAllMoveToGraph(DirectedGraphNode.new([knig.row,knig.col]),chessboard)
+   chessboard.SetPosition(knig,pos1[0],pos1[1])
+    graph=knig.PutAllMoveToGraph(DirectedGraphNode.new([pos1[0],pos1[1]]),chessboard)
    x=2
-  return GetShortestPath(pos2,graph,arr)
-   #return arr
-
-end
-def GetShortestPath(pos,node,totalarr,tmp=[])
-   
-      if(node==nil)
-          tmparr.clear!
-      elsif(node.GetValue[0]==pos[0]&&node.GetValue[1]==pos[1])
-         tmp.push(node.GetValue)
-         totalarr.push(tmp)
-          tmparr.clear!
-      else
-         for n in node.GetNexts
-         tmp.push(n.GetValue)
-         GetShortestPath(pos,n,totalarr,tmp)
-         end
-      end
-      
-
-
-end
-def printGraph(node)
-      if(node==nil)
-          tmparr.clear!
-      else
-         p (node.GetValue.to_s+"e")
-            #node.GetNexts.each {  |n| p node printGraph(n)}
-      end
-      
-
-
+   arr=[]
+   paths = GetPaths(pos2,graph,arr)
+    arr=  paths .reduce{ |prev, current| current.length <= prev.length ? current : prev  } 
+    puts "you made it in "+(arr.length-1).to_s+" moves! Here is your path:"
+      arr.each{|x| p x}
 end
 
 
-knight_moves([0,1],[2,2])
+
+def GetPaths(pos, node, paths=[], path=[])
+  if node.nil?
+    return paths
+  elsif node.GetValue == pos
+    path.push(node.GetValue)
+    paths.push(path.dup)
+    path.pop
+    return paths
+  else
+    node.GetNexts.each do |n|
+      path.push(node.GetValue)
+      GetPaths(pos, n, paths, path)
+      path.pop
+    end
+  end
+  return paths
+end
+
+
+
+
+
+ knight_moves([0,0],[1,2])
+ knight_moves([0,0],[3,3])
+ knight_moves([3,3],[0,0])
+  knight_moves([3,3],[4,3])
