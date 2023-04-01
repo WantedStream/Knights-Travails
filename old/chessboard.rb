@@ -75,13 +75,12 @@ class Knight
       return false
    end 
   
-   def PutAllMoveToGraph(graph,chessboard = ChessBoard.new)
+   def PutAllMoveToGraph(graph,chessboard = ChessBoard.new  )
       return nil if(graph==nil)
 
 
       p graph.GetValue
-      chessboard.printboard
-      x=gets
+
       graph.SetValue([@row,@col]) 
       moves = self.GetMoves
       moves.each do |movevar|
@@ -93,23 +92,24 @@ class Knight
          newgraph=DirectedGraphNode.new([nrow,ncol])
          newgraph=PutAllMoveToGraph(newgraph,chessboard)
          graph.AddNext(newgraph)
-         newgraph.GetNexts.each do |x|
-            PutAllMoveToGraph(x,chessboard)
-         end
-         #@row=graph.GetValue[0]
-        # @col=graph.GetValue[1]
+        chessboard.RemovePosition(nrow,ncol)
+        @row=graph.GetValue[0]
+        @col=graph.GetValue[1]
+
+
 
       end
 
 
       end
+      
          return graph
      #printGraph(graph)
    
    end 
      
    def GetMoves(row=@row,col=@col)
-      return[[row+2,col+1],[row+2,col-1],[row+1,col+2],[row+1,col+2],[row-1,col+2],[row-1,col-2],[row-2,col+1],[row-2,col-1]]
+      return[[row+2,col+1],[row+2,col-1],[row+1,col+2],[row+1,col-2],[row-1,col+2],[row-1,col-2],[row-2,col+1],[row-2,col-1]]
 
    end
 end
@@ -120,7 +120,7 @@ def knight_moves(pos1,pos2)
    chessboard.SetPosition(knig,0,0)
     graph=knig.PutAllMoveToGraph(DirectedGraphNode.new([knig.row,knig.col]),chessboard)
    x=2
-  # GetShortestPath(pos2,graph,arr)
+  return GetShortestPath(pos2,graph,arr)
    #return arr
 
 end

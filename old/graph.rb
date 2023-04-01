@@ -1,12 +1,12 @@
 class DirectedGraphNode
 
-    def initialize(value,g=[])
+    def initialize(value=nil,g=[])
         @value = value
         @graph=g;
     end
 
     def AddNext(g)
-        @graph.push(g)
+        @graph.push(g) if(g!=nil)
     end
 
     def SetValue(value)
@@ -21,15 +21,7 @@ class DirectedGraphNode
         return @graph
     end
 
-    def PrintGraph(directedgn=self)
 
-      #  queue=[directedgn]
-       # while(queue.size>0)
-       #     head=queue.shift
-       #     p head.GetValue()
-
-       # end
-    end
 
     def GetHeight(directedgn=self,v2)
         
